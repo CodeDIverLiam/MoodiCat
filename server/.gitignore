@@ -1,0 +1,54 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+
+# --- Local Spring config (keep template only) ---
+# 忽略所有本地配置
+src/main/resources/application*.yml
+# 但允许模板文件入库
+!src/main/resources/application-example.yml
+
+# 常见环境变量文件（本地自用）
+.env
+.env.*
+*.secret
+*.local
+
+# 日志与临时文件
+logs/
+*.log
+
+# OS 垃圾
+.DS_Store
+Thumbs.db

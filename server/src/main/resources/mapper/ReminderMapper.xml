@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidiary.mapper.ReminderMapper">
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO reminders (user_id, task_id, reminder_time)
+        VALUES (#{userId}, #{taskId}, #{reminderTime})
+    </insert>
+
+    <select id="findByUserId" resultType="com.aidiary.model.Reminder">
+        SELECT id, user_id as userId, task_id as taskId, reminder_time as reminderTime, is_sent as isSent, created_at as createdAt 
+        FROM reminders WHERE user_id = #{userId} ORDER BY reminder_time ASC
+    </select>
+
+    <delete id="delete">
+        DELETE FROM reminders WHERE id = #{id}
+    </delete>
+
+    <select id="findById" resultType="com.aidiary.model.Reminder">
+        SELECT id, user_id as userId, task_id as taskId, reminder_time as reminderTime, is_sent as isSent, created_at as createdAt 
+        FROM reminders WHERE id = #{id}
+    </select>
+
+    <select id="findDueReminders" resultType="com.aidiary.model.Reminder">
+        SELECT id, user_id as userId, task_id as taskId, reminder_time as reminderTime, is_sent as isSent, created_at as createdAt 
+        FROM reminders WHERE reminder_time &lt;= #{currentTime} AND is_sent = FALSE
+    </select>
+
+    <update id="markAsSent">
+        UPDATE reminders SET is_sent = TRUE WHERE id = #{id}
+    </update>
+
+</mapper>

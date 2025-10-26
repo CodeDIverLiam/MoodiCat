@@ -1,0 +1,33 @@
+# 1. 先登录获取token
+POST http://localhost:10000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "newuser",
+  "password": "password123"
+}
+
+###
+
+# 2. 获取任务列表 (使用上面登录返回的token)
+GET http://localhost:10000/api/v1/tasks
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuZXd1c2VyIiwiaWF0IjoxNzYxMjE3MjIzLCJleHAiOjE3NjEyMjA4MjN9.LpxXzCTTscjJI0bO8gLu7kqzyJymx-thQyB68A3SpGU
+
+###
+
+# 3. 创建任务
+POST http://localhost:10000/api/v1/tasks
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuZXd1c2VyIiwiaWF0IjoxNzYxMjE3MjIzLCJleHAiOjE3NjEyMjA4MjN9.LpxXzCTTscjJI0bO8gLu7kqzyJymx-thQyB68A3SpGU
+Content-Type: application/json
+
+{
+  "title": "新任务",
+  "description": "通过HTTP测试创建的任务",
+  "status": "pending"
+}
+
+###
+
+# 4. 获取特定任务
+GET http://localhost:10000/api/v1/tasks/10
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuZXd1c2VyIiwiaWF0IjoxNzYxMjE3MjIzLCJleHAiOjE3NjEyMjA4MjN9.LpxXzCTTscjJI0bO8gLu7kqzyJymx-thQyB68A3SpGU

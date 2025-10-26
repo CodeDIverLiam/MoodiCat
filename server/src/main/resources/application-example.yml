@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: aiDiary
+
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY} # 从环境变量注入
+      chat:
+        options:
+          model: qwen-plus
+          temperature: ${AI_TEMPERATURE:0.7}
+
+  datasource:
+    # 示例：jdbc:postgresql://localhost:5432/aidb
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: ${JPA_SHOW_SQL:true}
+    properties:
+      hibernate.jdbc.time_zone: UTC
+
+server:
+  port: ${SERVER_PORT:10000}
