@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Plus, Edit3, Calendar, Heart } from "lucide-react";
+import { Plus, Heart, Edit3, Trash2 } from "lucide-react";
 import { useDiary } from "../hooks/useDiary";
+import DiaryList from "./lists/DiaryList";
+import DiaryForm from "./forms/DiaryForm";
 
 export default function DiaryPanel() {
-  const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
+  const [newEntryContent, setNewEntryContent] = useState('');
+  const [editingEntry, setEditingEntry] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   
   const { 
     entries = [], 
@@ -19,10 +22,61 @@ export default function DiaryPanel() {
     createError,
     updateError,
     deleteError
-  } = useDiary(startDate, endDate);
+  } = useDiary('today');
+
+  const addEntry = () => {
+    if (newEntryContent.trim() && !isCreating) {
+      const today = new Date().toISOString().split('T')[0];
+      createEntry({
+        title: `Entry ${new Date().toLocaleTimeString()}`,
+        content: newEntryContent,
+        mood: 'neutral',
+        entryDate: today
+      });
+      setNewEntryContent('');
+    }
+  };
+
+  const handleDeleteEntry = (id) => {
+    deleteEntry(id);
+  };
+
+  const handleEditEntry = (entry) => {
+    setEditingEntry(entry);
+    setShowForm(true);
+  };
+
+  const handleFormSubmit = (data) => {
+    if (editingEntry) {
+      updateEntry({ 
+        entryId: editingEntry.id, 
+        entryData: data 
+      });
+    }
+    setShowForm(false);
+    setEditingEntry(null);
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingEntry(null);
+  };
+
+  if (showForm) {
+    return (
+      <div className="card-modern">
+        <DiaryForm
+          entry={editingEntry}
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+          isLoading={isUpdating}
+        />
+      </div>
+    );
+  }
 
   return (
-    <div className="card-modern h-full flex flex-col">
+    <div className="card-modern">
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between mb-4">
@@ -30,30 +84,33 @@ export default function DiaryPanel() {
             <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-full flex items-center justify-center">
               <Heart className="w-4 h-4 text-white" />
             </div>
-            <h3 className="font-bold text-gray-800">My Diary</h3>
+            <h3 className="font-bold text-gray-800">Today's Diary</h3>
           </div>
-          <button 
-            onClick={() => {/* TODO: Open create form */}}
-            className="w-8 h-8 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-full flex items-center justify-center hover:from-teal-500 hover:to-cyan-600 transition-all"
-          >
-            <Plus className="w-4 h-4 text-white" />
-          </button>
         </div>
-        
-        {/* Date Filter */}
-        <div className="flex gap-2">
+      </div>
+
+      {/* Add Entry */}
+      <div className="p-6 border-b border-gray-100">
+        <div className="flex gap-3">
           <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-400"
+            type="text"
+            value={newEntryContent}
+            onChange={(e) => setNewEntryContent(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && addEntry()}
+            placeholder="How was your day?"
+            className="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100"
           />
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-teal-400"
-          />
+          <button
+            onClick={addEntry}
+            disabled={isCreating || !newEntryContent.trim()}
+            className="w-12 h-12 bg-gradient-to-r from-teal-400 to-cyan-500 rounded-lg flex items-center justify-center hover:from-teal-500 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isCreating ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <Plus className="w-5 h-5 text-white" />
+            )}
+          </button>
         </div>
       </div>
 
@@ -74,8 +131,8 @@ export default function DiaryPanel() {
         </div>
       )}
 
-      {/* Diary Entries */}
-      <div className="flex-1 p-6 overflow-y-auto space-y-4 custom-scrollbar">
+      {/* Diary List */}
+      <div className="p-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
@@ -83,61 +140,16 @@ export default function DiaryPanel() {
         ) : entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-gray-500">
             <div className="text-4xl mb-2">📖</div>
-            <p className="text-sm">No diary entries found for this date range.</p>
+            <p className="text-sm">No diary entries for today. Add one above!</p>
           </div>
         ) : (
-          entries.map((entry) => (
-          <div key={entry.id} className="bg-gray-50 rounded-xl p-4 hover:bg-gray-100 transition-colors cursor-pointer">
-            <div className="flex items-start justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">{entry.mood}</span>
-                <h4 className="font-semibold text-gray-800">{entry.title}</h4>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500">{entry.date}</span>
-                <button className="w-6 h-6 bg-white rounded-full flex items-center justify-center hover:bg-gray-100">
-                  <Edit3 className="w-3 h-3 text-gray-600" />
-                </button>
-              </div>
-            </div>
-            <p className="text-sm text-gray-600 mb-3 line-clamp-2">{entry.content}</p>
-            <div className="flex gap-2">
-              {entry.tags.map((tag, index) => (
-                <span key={index} className="px-2 py-1 bg-teal-100 text-teal-700 text-xs rounded-full">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-          ))
-        )}
-      </div>
-
-      {/* Quick Add */}
-      <div className="p-6 border-t border-gray-100">
-        <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <Calendar className="w-5 h-5 text-teal-600" />
-            <span className="font-semibold text-gray-800">Quick Entry</span>
-          </div>
-          <textarea
-            placeholder="How was your day?"
-            className="w-full p-3 border border-teal-200 rounded-lg focus:outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 resize-none"
-            rows={3}
+          <DiaryList
+            entries={entries}
+            onUpdate={handleEditEntry}
+            onDelete={handleDeleteEntry}
+            isLoading={isDeleting}
           />
-          <div className="flex justify-between items-center mt-3">
-            <div className="flex gap-2">
-              {['😊', '😌', '😔', '😤'].map((emoji, index) => (
-                <button key={index} className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-gray-50">
-                  <span className="text-sm">{emoji}</span>
-                </button>
-              ))}
-            </div>
-            <button className="px-4 py-2 bg-gradient-to-r from-teal-400 to-cyan-500 text-white rounded-lg text-sm font-medium hover:from-teal-500 hover:to-cyan-600 transition-all">
-              Save
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

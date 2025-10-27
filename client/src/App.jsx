@@ -13,7 +13,6 @@ import moodicatImage from './assets/moodicat_cry.png';
 
 // 认证后的主界面
 function MainLayout() {
-  const [activePanel, setActivePanel] = useState('mood');
   const { logout } = useAuth();
 
   return (
@@ -35,9 +34,9 @@ function MainLayout() {
           </div>
 
           {/* Right Side - Content Panels */}
-          <div className="w-1/2 p-6">
+          <div className="w-1/2 p-6 flex flex-col h-full">
             {/* Header with Logo */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <Logo />
               <div className="flex items-center gap-4">
                 <div className="text-white text-2xl font-bold">MOODICAT</div>
@@ -45,56 +44,25 @@ function MainLayout() {
               </div>
             </div>
 
-            {/* Panel Selection Buttons */}
-            <div className="flex space-x-2 mb-6">
-              <button
-                onClick={() => setActivePanel('mood')}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activePanel === 'mood'
-                    ? 'bg-white text-teal-600 shadow-lg transform scale-105'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-              Mood
-              </button>
-              <button
-                onClick={() => setActivePanel('diary')}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activePanel === 'diary'
-                    ? 'bg-white text-teal-600 shadow-lg transform scale-105'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                Diary
-              </button>
-              <button
-                onClick={() => setActivePanel('tasks')}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activePanel === 'tasks'
-                    ? 'bg-white text-teal-600 shadow-lg transform scale-105'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                Tasks
-              </button>
-              <button
-                onClick={() => setActivePanel('test')}
-                className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                  activePanel === 'test'
-                    ? 'bg-white text-teal-600 shadow-lg transform scale-105'
-                    : 'bg-white/20 text-white hover:bg-white/30'
-                }`}
-              >
-                🧪 Test
-              </button>
-            </div>
+            {/* Three Panels Container - Total height equals left side */}
+            <div className="flex-1 flex flex-col gap-4">
+              {/* Mood Panel - Fixed height */}
+              <div className="h-48 flex-shrink-0">
+                <MoodDisplayCard />
+              </div>
 
-            {/* Panel Content */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-xl">
-              {activePanel === 'mood' && <MoodDisplayCard />}
-              {activePanel === 'diary' && <DiaryPanel />}
-              {activePanel === 'tasks' && <TaskPanel />}
-              {activePanel === 'test' && <AITest />}
+              {/* Diary and Task Panels - Share remaining space */}
+              <div className="flex-1 flex flex-col gap-4">
+                {/* Diary Panel */}
+                <div className="flex-1 min-h-0">
+                  <DiaryPanel />
+                </div>
+                
+                {/* Task Panel */}
+                <div className="flex-1 min-h-0">
+                  <TaskPanel />
+                </div>
+              </div>
             </div>
           </div>
         </div>

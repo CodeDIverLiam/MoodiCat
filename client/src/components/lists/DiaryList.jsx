@@ -1,40 +1,14 @@
-import { useState } from 'react';
-import { Edit, Trash2, Eye } from 'lucide-react';
-import DiaryForm from '../forms/DiaryForm';
+import { Edit3, Trash2 } from 'lucide-react';
 
 export default function DiaryList({ entries, onUpdate, onDelete, isLoading }) {
-  const [editingEntry, setEditingEntry] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [viewingEntry, setViewingEntry] = useState(null);
-
-  const handleEdit = (entry) => {
-    setEditingEntry(entry);
-    setShowForm(true);
-  };
-
-  const handleView = (entry) => {
-    setViewingEntry(entry);
-  };
-
-  const handleFormSubmit = (data) => {
-    if (editingEntry) {
-      onUpdate(editingEntry.id, data);
-    }
-    setShowForm(false);
-    setEditingEntry(null);
-  };
-
-  const handleFormCancel = () => {
-    setShowForm(false);
-    setEditingEntry(null);
-  };
-
   const getMoodEmoji = (mood) => {
     switch (mood) {
       case 'happy':
         return '😊';
       case 'sad':
         return '😢';
+      case 'neutral':
+        return '😐';
       default:
         return '😐';
     }
@@ -46,112 +20,64 @@ export default function DiaryList({ entries, onUpdate, onDelete, isLoading }) {
         return 'bg-green-100 text-green-800';
       case 'sad':
         return 'bg-red-100 text-red-800';
+      case 'neutral':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  if (showForm) {
-    return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold mb-4">
-          {editingEntry ? 'Edit Entry' : 'Create Entry'}
-        </h3>
-        <DiaryForm
-          entry={editingEntry}
-          onSubmit={handleFormSubmit}
-          onCancel={handleFormCancel}
-          isLoading={isLoading}
-        />
-      </div>
-    );
-  }
-
-  if (viewingEntry) {
-    return (
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">{viewingEntry.title}</h3>
-          <button
-            onClick={() => setViewingEntry(null)}
-            className="text-gray-500 hover:text-gray-700"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">{getMoodEmoji(viewingEntry.mood)}</span>
-            <span className={`px-2 py-1 rounded-full text-sm font-medium ${getMoodColor(viewingEntry.mood)}`}>
-              {viewingEntry.mood}
-            </span>
-            <span className="text-sm text-gray-500">
-              {new Date(viewingEntry.entryDate).toLocaleDateString()}
-            </span>
-          </div>
-          <div className="prose max-w-none">
-            <p className="whitespace-pre-wrap">{viewingEntry.content}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (!entries || entries.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="text-gray-400 text-6xl mb-4">📖</div>
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No diary entries found</h3>
-        <p className="text-gray-600">Start writing your thoughts!</p>
+      <div className="text-center py-8">
+        <div className="text-gray-400 text-4xl mb-2">📖</div>
+        <p className="text-sm text-gray-500">No diary entries for today</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {entries.map((entry) => (
-        <div key={entry.id} className="bg-white rounded-lg shadow p-4">
-          <div className="flex items-start justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">{entry.title}</h3>
-                <span className="text-2xl">{getMoodEmoji(entry.mood)}</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMoodColor(entry.mood)}`}>
-                  {entry.mood}
-                </span>
-              </div>
-              
-              <p className="text-sm text-gray-500 mb-2">
-                {new Date(entry.entryDate).toLocaleDateString()}
-              </p>
-              
-              <p className="text-gray-600 line-clamp-3">{entry.content}</p>
+        <div
+          key={entry.id}
+          className="flex items-center gap-3 p-3 rounded-lg border bg-white border-gray-200 hover:border-teal-200 transition-all"
+        >
+          <div className="flex-shrink-0">
+            <span className="text-lg">{getMoodEmoji(entry.mood)}</span>
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <h4 className="text-sm font-medium text-gray-800 truncate">{entry.title}</h4>
+              <span className={`px-2 py-1 text-xs rounded-full border ${getMoodColor(entry.mood)}`}>
+                {entry.mood}
+              </span>
             </div>
-            
-            <div className="flex gap-2 ml-4">
-              <button
-                onClick={() => handleView(entry)}
-                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded"
-              >
-                <Eye className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => handleEdit(entry)}
-                className="p-2 text-gray-600 hover:text-teal-600 hover:bg-teal-50 rounded"
-              >
-                <Edit className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this entry?')) {
-                    onDelete(entry.id);
-                  }
-                }}
-                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
+            <p className="text-sm text-gray-600 line-clamp-2">{entry.content}</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {new Date(entry.entryDate).toLocaleTimeString()}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onUpdate(entry)}
+              className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+            >
+              <Edit3 className="w-3 h-3 text-gray-600" />
+            </button>
+            <button
+              onClick={() => onDelete(entry.id)}
+              disabled={isLoading}
+              className="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center hover:bg-red-200 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <div className="w-3 h-3 border border-red-600 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <Trash2 className="w-3 h-3 text-red-600" />
+              )}
+            </button>
           </div>
         </div>
       ))}
