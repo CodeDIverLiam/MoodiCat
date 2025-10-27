@@ -21,7 +21,7 @@ export default function MoodDisplayCard() {
   return (
     <div className="card-modern h-full flex flex-col">
       <div className="p-4 flex-shrink-0">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-3">
           <div className="w-6 h-6 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-full flex items-center justify-center">
             <span className="text-xs">😊</span>
           </div>
@@ -29,9 +29,9 @@ export default function MoodDisplayCard() {
         </div>
 
         {/* Current Mood Display */}
-        <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg p-3 mb-4 border border-yellow-200">
+        <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg p-3 mb-3 border border-yellow-200">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{mockTodayMood.emoji}</span>
+            <span className="text-xl">{mockTodayMood.emoji}</span>
             <div className="flex-1 min-w-0">
               <h4 className="font-semibold text-gray-800 text-sm">{mockTodayMood.label}</h4>
               <p className="text-xs text-gray-600 line-clamp-2">{mockTodayMood.note}</p>
@@ -42,12 +42,12 @@ export default function MoodDisplayCard() {
       </div>
 
       {/* Mood History - Compact */}
-      <div className="p-4 pt-0 flex-1 flex flex-col">
+      <div className="px-4 pb-4 flex-1 flex flex-col min-h-0">
         <h4 className="font-semibold text-gray-700 mb-2 text-sm">This Week</h4>
         <div className="flex gap-1 flex-1">
           {mockWeekMoods.map((mood, index) => (
-            <div key={index} className="flex-1 bg-gray-50 rounded-lg p-2 text-center flex flex-col justify-center">
-              <div className="text-sm mb-1">{mood.emoji}</div>
+            <div key={index} className="flex-1 bg-gray-50 rounded-lg p-1.5 text-center flex flex-col justify-center">
+              <div className="text-xs mb-1">{mood.emoji}</div>
               <div className="text-xs text-gray-500">{mood.day}</div>
             </div>
           ))}

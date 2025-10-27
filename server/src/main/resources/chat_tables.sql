@@ -21,3 +21,4 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     INDEX idx_timestamp (timestamp),
     FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
 );
+

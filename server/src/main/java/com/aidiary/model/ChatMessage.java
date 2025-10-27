@@ -15,3 +15,4 @@ public class ChatMessage {
     private String content;
     private LocalDateTime timestamp;
 }
+

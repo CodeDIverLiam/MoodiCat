@@ -18,3 +18,4 @@ public class ChatSession {
     private LocalDateTime updatedAt;
     private List<ChatMessage> messages;
 }
+

@@ -78,3 +78,4 @@ public class ChatSessionController {
         chatSessionService.deleteSession(session.getId());
     }
 }
+

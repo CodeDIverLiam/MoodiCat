@@ -69,3 +69,4 @@ describe('ProtectedRoute', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 });
+

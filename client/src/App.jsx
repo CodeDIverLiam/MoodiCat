@@ -35,7 +35,7 @@ function MainLayout() {
 
           {/* Right Side - Content Panels */}
           <div className="w-1/2 p-6 flex flex-col h-full">
-            {/* Header with Logo */}
+            {/* Top Header - Fixed height */}
             <div className="flex items-center justify-between mb-6 flex-shrink-0">
               <Logo />
               <div className="flex items-center gap-4">
@@ -44,24 +44,21 @@ function MainLayout() {
               </div>
             </div>
 
-            {/* Three Panels Container - Total height equals left side */}
-            <div className="flex-1 flex flex-col gap-4">
-              {/* Mood Panel - Fixed height */}
-              <div className="h-48 flex-shrink-0">
-                <MoodDisplayCard />
-              </div>
+            {/* Mood Panel - Fixed height (25-30% of available space) */}
+            <div className="h-[30%] flex-shrink-0 mb-4">
+              <MoodDisplayCard />
+            </div>
 
-              {/* Diary and Task Panels - Share remaining space */}
-              <div className="flex-1 flex flex-col gap-4">
-                {/* Diary Panel */}
-                <div className="flex-1 min-h-0">
-                  <DiaryPanel />
-                </div>
-                
-                {/* Task Panel */}
-                <div className="flex-1 min-h-0">
-                  <TaskPanel />
-                </div>
+            {/* Bottom Area - Diary and Task Panels side by side */}
+            <div className="flex-1 flex gap-4 min-h-0">
+              {/* Diary Panel - Left half */}
+              <div className="w-1/2 min-h-0">
+                <DiaryPanel />
+              </div>
+              
+              {/* Task Panel - Right half */}
+              <div className="w-1/2 min-h-0">
+                <TaskPanel />
               </div>
             </div>
           </div>

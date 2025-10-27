@@ -19,3 +19,4 @@ public interface ChatSessionMapper {
     List<ChatMessage> getMessagesBySessionId(Long sessionId);
     void deleteMessagesBySessionId(Long sessionId);
 }
+
