@@ -1,5 +1,4 @@
 import { useState } from 'react';
-// 导入 Link 和 ReportsPage
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
 import SimpleLogin from './pages/SimpleLogin';
 import ProtectedRoute from './components/common/ProtectedRoute';
@@ -10,15 +9,44 @@ import TaskPanel from './components/TaskPanel';
 import Logo from './components/Logo';
 import AITest from './components/AITest';
 import moodicatImage from './assets/moodicat_cry.png';
-import ReportsPage from './pages/ReportsPage'; // 1. 导入 ReportsPage
+import ReportsPage from './pages/ReportsPage';
+import { useTodayMoodSummary } from './hooks/useReports'; // 1. Import new hook
 
-// (MainLayout 函数已修改，添加了 "Reports" 链接)
+/**
+ * [NEW] Small panel component to display today's mood
+ */
+function TodayMoodPanel() {
+    const { mood, isLoading } = useTodayMoodSummary();
+
+    const renderContent = () => {
+        if (isLoading) {
+            return (
+                <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            );
+        }
+        // Check if mood is likely an emoji (basic check)
+        if (mood && mood.length <= 2 && mood.codePointAt(0) > 255) {
+            return <span className="text-lg">{mood}</span>;
+        }
+        // Otherwise, show as text
+        return <span className="text-xs font-semibold">{mood || '...'}</span>;
+    };
+
+    return (
+        <div
+            title="Today's AI Mood Summary"
+            className="px-3 py-2 bg-white/20 text-white rounded-lg flex items-center justify-center min-w-[80px]"
+        >
+            {renderContent()}
+        </div>
+    );
+}
+
 function MainLayout() {
     const { logout } = useAuth();
 
     return (
         <div className="min-h-screen" style={{backgroundColor: '#38BECF'}}>
-            {/* Background Mascot */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 <img
                     src={moodicatImage}
@@ -27,21 +55,20 @@ function MainLayout() {
                 />
             </div>
 
-            {/* Main Content */}
             <div className="relative z-10 flex h-screen">
-                {/* Left Side - AI Chat Panel */}
                 <div className="w-1/2 p-6">
                     <AIChatPanel />
                 </div>
 
-                {/* Right Side - Content Panels */}
                 <div className="w-1/2 p-6 flex flex-col h-full">
-                    {/* Top Header - Fixed height */}
                     <div className="flex items-center justify-between mb-6 flex-shrink-0">
                         <Logo />
                         <div className="flex items-center gap-4">
                             <div className="text-white text-2xl font-bold">MOODICAT</div>
-                            {/* 2. 添加 Reports 链接 */}
+
+                            {/* 2. Add the new TodayMoodPanel here */}
+                            <TodayMoodPanel />
+
                             <Link
                                 to="/reports"
                                 className="px-3 py-2 bg-white/20 text-white rounded-lg hover:bg-white/30"
@@ -66,7 +93,6 @@ function MainLayout() {
     );
 }
 
-// (App 函数已修改，添加了 "/reports" 路由)
 export default function App() {
     const { user, isLoading } = useAuth();
 
@@ -89,12 +115,10 @@ export default function App() {
                     <MainLayout />
                 </ProtectedRoute>
             } />
-            {/* 3. 添加新的 Reports 路由 */}
             <Route path="/reports" element={
                 <ProtectedRoute>
                     <div className="p-8" style={{backgroundColor: '#E0F7FA', minHeight: '100vh'}}>
                         <div className="max-w-4xl mx-auto">
-                            {/* 添加一个返回首页的链接 */}
                             <Link to="/" className="text-teal-700 hover:text-teal-900 mb-4 inline-block">
                                 &larr; Back to Main
                             </Link>

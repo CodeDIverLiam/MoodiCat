@@ -3,7 +3,6 @@ import { useDailySummary, useMoodTrend } from '../hooks/useReports';
 import Loading from '../components/common/Loading';
 import ErrorState from '../components/common/ErrorState';
 
-// 简单的图表占位符（用于显示AI分析结果）
 function MoodChart({ data }) {
   if (!data || data.length === 0) {
     return (
@@ -17,7 +16,7 @@ function MoodChart({ data }) {
     );
   }
 
-  // 将数据显示为列表（证明API对接成功）
+
   return (
       <div className="space-y-2">
         <h4 className="text-sm font-semibold text-gray-700">AI Mood Analysis Results:</h4>

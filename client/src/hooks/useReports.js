@@ -28,4 +28,18 @@ export const useMoodTrend = (period = 'last30days') => {
   };
 };
 
+// [NEW] Hook for the today's mood panel
+export const useTodayMoodSummary = () => {
+  const { data: mood, isLoading, error } = useQuery({
+    queryKey: ['reports', 'today-mood-summary'],
+    queryFn: () => reportsApi.getTodayMoodSummary(),
+    // Optional: refetch every 5 minutes
+    refetchInterval: 300000,
+  });
 
+  return {
+    mood,
+    isLoading,
+    error
+  };
+};
