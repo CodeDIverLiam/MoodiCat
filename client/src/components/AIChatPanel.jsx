@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { Send, Mic, Image, Smile } from "lucide-react";
+import { useState } from "react";
+import { Send } from "lucide-react";
 import logoImage from "../assets/logo.png";
 import { api } from "../api/client";
+import { useTodayMoodSummary } from "../hooks/useReports";
 
 export default function AIChatPanel() {
   const [messages, setMessages] = useState([
@@ -15,6 +16,11 @@ export default function AIChatPanel() {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { mood, isLoading: isMoodLoading, refetch: refetchMood } = useTodayMoodSummary();
+
+  const handleMoodClick = () => {
+    refetchMood();
+  };
 
   const handleSend = async () => {
     if (inputValue.trim() && !isLoading) {
@@ -140,15 +146,27 @@ export default function AIChatPanel() {
       {/* Input Area */}
       <div className="p-6 border-t border-gray-100">
         <div className="flex items-center gap-3">
-          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <Mic className="w-5 h-5 text-gray-600" />
-          </button>
-          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <Image className="w-5 h-5 text-gray-600" />
-          </button>
-          <button className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
-            <Smile className="w-5 h-5 text-gray-600" />
-          </button>
+          {/* Today's Mood Panel */}
+          <div
+            title="Click to re-analyze mood"
+            onClick={handleMoodClick}
+            className="px-3 py-2 bg-gradient-to-r from-teal-400 to-cyan-500 text-white rounded-lg flex items-center justify-center min-w-[80px] cursor-pointer hover:from-teal-500 hover:to-cyan-600 transition-all active:from-teal-600 active:to-cyan-700"
+          >
+            {isMoodLoading ? (
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            ) : mood ? (
+              (() => {
+                const englishOnly = mood.replace(/[^\x00-\x7F]/g, '').trim();
+                return englishOnly ? (
+                  <span className="text-xs font-semibold">{englishOnly}</span>
+                ) : (
+                  <span className="text-xs font-semibold">...</span>
+                );
+              })()
+            ) : (
+              <span className="text-xs font-semibold">...</span>
+            )}
+          </div>
           
           <div className="flex-1 relative">
             <input

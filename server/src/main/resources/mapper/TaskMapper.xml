@@ -34,6 +34,6 @@
     <select id="findByUserIdAndDate" resultType="com.aidiary.model.Task">
         SELECT id, user_id as userId, title, description, status, due_date as dueDate, created_at as createdAt, updated_at as updatedAt
         FROM tasks
-        WHERE user_id = #{userId} AND due_date = #{date}
+        WHERE user_id = #{userId} AND DATE(updated_at) = #{date}
     </select>
 </mapper>

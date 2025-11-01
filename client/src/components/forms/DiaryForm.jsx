@@ -5,7 +5,7 @@ import { z } from 'zod';
 const diarySchema = z.object({
   title: z.string().optional(),
   content: z.string().min(1, 'Content is required'),
-  mood: z.enum(['happy', 'neutral', 'sad']),
+  mood: z.string().optional(),
   entryDate: z.string().optional()
 });
 
@@ -65,14 +65,12 @@ export default function DiaryForm({ entry, onSubmit, onCancel, isLoading }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Mood
           </label>
-          <select
+          <input
             {...register('mood')}
+            type="text"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          >
-            <option value="happy">😊 Happy</option>
-            <option value="neutral">😐 Neutral</option>
-            <option value="sad">😢 Sad</option>
-          </select>
+            placeholder="Enter your mood (e.g., happy, sad, excited, etc.)"
+          />
         </div>
 
         <div>

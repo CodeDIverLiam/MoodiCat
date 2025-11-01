@@ -90,9 +90,9 @@ export default function TaskList({ tasks, onUpdate, onDelete, isLoading }) {
                 <p className="text-gray-600 mb-2">{task.description}</p>
               )}
               
-              {task.dueDate && (
+              {task.updatedAt && (
                 <p className="text-sm text-gray-500">
-                  Due: {new Date(task.dueDate).toLocaleDateString()}
+                  Updated: {new Date(task.updatedAt).toLocaleString()}
                 </p>
               )}
             </div>

@@ -70,13 +70,15 @@ export default function DiaryPanel() {
 
   if (showForm) {
     return (
-      <div className="card-modern">
-        <DiaryForm
-          entry={editingEntry}
-          onSubmit={handleFormSubmit}
-          onCancel={handleFormCancel}
-          isLoading={isUpdating}
-        />
+      <div className="card-modern h-full flex flex-col relative z-50">
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <DiaryForm
+            entry={editingEntry}
+            onSubmit={handleFormSubmit}
+            onCancel={handleFormCancel}
+            isLoading={isUpdating}
+          />
+        </div>
       </div>
     );
   }

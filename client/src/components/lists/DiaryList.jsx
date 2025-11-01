@@ -58,7 +58,7 @@ export default function DiaryList({ entries, onUpdate, onDelete, isLoading }) {
             </div>
             <p className="text-sm text-gray-600 line-clamp-2">{entry.content || '(无内容)'}</p>
             <p className="text-xs text-gray-500 mt-1">
-              {new Date(entry.entryDate).toLocaleTimeString()}
+              {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : (entry.entryDate ? new Date(entry.entryDate).toLocaleDateString() : '')}
             </p>
           </div>
           

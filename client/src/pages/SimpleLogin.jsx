@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import mascotImage from '../assets/moodicat_cry.png'; // 1. 导入图像
+import toast from 'react-hot-toast';
+import mascotImage from '../assets/moodicat_cry.png';
 
 export default function SimpleLogin({ onLoginSuccess }) {
   const [username, setUsername] = useState('');
@@ -26,13 +27,27 @@ export default function SimpleLogin({ onLoginSuccess }) {
         }),
       });
 
-      const data = await response.json();
+      let data;
+      const contentType = response.headers.get('content-type');
+      try {
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          // Handle text response (like "Username already exists")
+          const text = await response.text();
+          data = { message: text || 'An error occurred' };
+        }
+      } catch (e) {
+        data = { message: 'Invalid response from server' };
+      }
+
       console.log('Response:', data);
 
       if (response.ok) {
         if (data.token) {
           localStorage.setItem('aiDiaryToken', data.token);
           localStorage.setItem('aiDiaryUser', JSON.stringify(data.user));
+          toast.success(isLogin ? 'Welcome back! 🎉' : 'Account created successfully! 🎉');
           if (onLoginSuccess) {
             onLoginSuccess();
           } else {
@@ -40,11 +55,30 @@ export default function SimpleLogin({ onLoginSuccess }) {
           }
         }
       } else {
-        alert(data.message || 'Error occurred');
+        // Handle different error cases
+        if (response.status === 409 && !isLogin) {
+          // Username already exists during registration
+          toast.error('Username already exists. Please sign in instead.', {
+            duration: 5000,
+          });
+          // Automatically switch to login mode
+          setTimeout(() => {
+            setIsLogin(true);
+          }, 500);
+        } else if (response.status === 401 && isLogin) {
+          // Login failed
+          toast.error('Invalid username or password. Please try again.');
+        } else if (response.status === 400) {
+          // Bad request
+          toast.error(data.message || 'Please check your input and try again.');
+        } else {
+          // Other errors
+          toast.error(data.message || 'An error occurred. Please try again.');
+        }
       }
     } catch (error) {
       console.error('Error:', error);
-      alert('Network error: ' + error.message);
+      toast.error('Network error: Unable to connect to server. Please check your connection.');
     } finally {
       setIsLoading(false);
     }

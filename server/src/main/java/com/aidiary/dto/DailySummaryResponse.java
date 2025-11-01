@@ -1,7 +1,10 @@
 package com.aidiary.dto;
 
+import com.aidiary.model.DiaryEntry;
+import com.aidiary.model.Task;
 import lombok.Data;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class DailySummaryResponse {
@@ -9,4 +12,6 @@ public class DailySummaryResponse {
     private long tasksCompleted;
     private long tasksPending;
     private String aiSuggestion;
+    private List<Task> tasks;
+    private List<DiaryEntry> entries;
 }

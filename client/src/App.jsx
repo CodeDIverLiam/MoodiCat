@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Routes, Route, Navigate, Link } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import SimpleLogin from './pages/SimpleLogin';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import { useAuth } from './hooks/useAuth';
@@ -16,7 +17,11 @@ import { useTodayMoodSummary } from './hooks/useReports'; // 1. Import new hook
  * [NEW] Small panel component to display today's mood
  */
 function TodayMoodPanel() {
-    const { mood, isLoading } = useTodayMoodSummary();
+    const { mood, isLoading, refetch } = useTodayMoodSummary();
+
+    const handleClick = () => {
+        refetch();
+    };
 
     const renderContent = () => {
         if (isLoading) {
@@ -24,18 +29,21 @@ function TodayMoodPanel() {
                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             );
         }
-        // Check if mood is likely an emoji (basic check)
-        if (mood && mood.length <= 2 && mood.codePointAt(0) > 255) {
-            return <span className="text-lg">{mood}</span>;
+        // Only show English text, filter out emojis and non-English characters
+        if (mood) {
+            const englishOnly = mood.replace(/[^\x00-\x7F]/g, '').trim();
+            if (englishOnly) {
+                return <span className="text-xs font-semibold">{englishOnly}</span>;
+            }
         }
-        // Otherwise, show as text
-        return <span className="text-xs font-semibold">{mood || '...'}</span>;
+        return <span className="text-xs font-semibold">...</span>;
     };
 
     return (
         <div
-            title="Today's AI Mood Summary"
-            className="px-3 py-2 bg-white/20 text-white rounded-lg flex items-center justify-center min-w-[80px]"
+            title="Click to re-analyze mood"
+            onClick={handleClick}
+            className="px-3 py-2 bg-white/20 text-white rounded-lg flex items-center justify-center min-w-[80px] cursor-pointer hover:bg-white/30 transition-colors active:bg-white/40"
         >
             {renderContent()}
         </div>
@@ -79,11 +87,11 @@ function MainLayout() {
                         </div>
                     </div>
 
-                    <div className="h-[40%] flex-shrink-0 mb-4">
+                    <div className="h-[40%] flex-shrink-0 mb-4 relative z-10">
                         <DiaryPanel />
                     </div>
 
-                    <div className="flex-1 min-h-0">
+                    <div className="flex-1 min-h-0 relative z-0">
                         <TaskPanel />
                     </div>
 
@@ -108,8 +116,34 @@ export default function App() {
     }
 
     return (
-        <Routes>
-            <Route path="/login" element={user ? <Navigate to="/" replace /> : <SimpleLogin />} />
+        <>
+            <Toaster 
+                position="top-center"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: '#fff',
+                        color: '#333',
+                        borderRadius: '8px',
+                        padding: '12px 16px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: '#14b8a6',
+                            secondary: '#fff',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: '#ef4444',
+                            secondary: '#fff',
+                        },
+                    },
+                }}
+            />
+            <Routes>
+                <Route path="/login" element={user ? <Navigate to="/" replace /> : <SimpleLogin />} />
             <Route path="/" element={
                 <ProtectedRoute>
                     <MainLayout />
@@ -128,6 +162,7 @@ export default function App() {
                 </ProtectedRoute>
             } />
             <Route path="*" element={user ? <Navigate to="/" replace /> : <Navigate to="/login" replace />} />
-        </Routes>
+            </Routes>
+        </>
     );
 }

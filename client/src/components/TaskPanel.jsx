@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Plus, CheckCircle, Circle, Trash2, Edit3 } from "lucide-react";
 import { useTasks } from "../hooks/useTasks";
+import TaskForm from "./forms/TaskForm";
 
 export default function TaskPanel() {
   const [newTask, setNewTask] = useState('');
+  const [editingTask, setEditingTask] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const { 
     tasks = [], 
     isLoading, 
@@ -53,14 +56,45 @@ export default function TaskPanel() {
     deleteTask(id);
   };
 
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return 'bg-red-100 text-red-700 border-red-200';
-      case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-      case 'low': return 'bg-green-100 text-green-700 border-green-200';
-      default: return 'bg-gray-100 text-gray-700 border-gray-200';
-    }
+  const handleEditTask = (task) => {
+    setEditingTask(task);
+    setShowForm(true);
   };
+
+  const handleFormSubmit = (data) => {
+    if (editingTask) {
+      updateTask({ 
+        taskId: editingTask.id, 
+        taskData: data 
+      });
+    }
+    setShowForm(false);
+    setEditingTask(null);
+  };
+
+  const handleFormCancel = () => {
+    setShowForm(false);
+    setEditingTask(null);
+  };
+
+  if (showForm) {
+    return (
+      <div className="card-modern h-full flex flex-col relative z-50">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+          <h3 className="text-lg font-semibold mb-4">
+            {editingTask ? 'Edit Task' : 'Create Task'}
+          </h3>
+          <TaskForm
+            task={editingTask}
+            onSubmit={handleFormSubmit}
+            onCancel={handleFormCancel}
+            isLoading={isUpdating}
+          />
+        </div>
+      </div>
+    );
+  }
+
 
   const completedTasks = tasks.filter(task => task.status === 'completed').length;
   const totalTasks = tasks.length;
@@ -168,16 +202,20 @@ export default function TaskPanel() {
               <p className={`text-xs ${task.status === 'completed' ? 'line-through text-gray-500' : 'text-gray-800'}`}>
                 {task.title}
               </p>
-              <div className="flex items-center gap-1 mt-1">
-                <span className={`px-1.5 py-0.5 text-xs rounded-full border ${getPriorityColor(task.priority || 'medium')}`}>
-                  {task.priority || 'medium'}
-                </span>
-                <span className="text-xs text-gray-500">{task.dueDate}</span>
-              </div>
+              {task.updatedAt && (
+                <div className="flex items-center gap-1 mt-1">
+                  <span className="text-xs text-gray-500">
+                    Updated: {new Date(task.updatedAt).toLocaleString()}
+                  </span>
+                </div>
+              )}
             </div>
             
             <div className="flex items-center gap-1">
-              <button className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200">
+              <button 
+                onClick={() => handleEditTask(task)}
+                className="w-5 h-5 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200"
+              >
                 <Edit3 className="w-2.5 h-2.5 text-gray-600" />
               </button>
               <button
