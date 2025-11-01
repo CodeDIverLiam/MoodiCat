@@ -22,3 +22,4 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     FOREIGN KEY (session_id) REFERENCES chat_sessions(id) ON DELETE CASCADE
 );
 
+
