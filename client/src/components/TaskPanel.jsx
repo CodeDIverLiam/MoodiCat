@@ -32,11 +32,18 @@ export default function TaskPanel() {
 
   const addTask = () => {
     if (newTask.trim() && !isCreating) {
+      // Get today's date using local timezone (not UTC)
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const today = `${year}-${month}-${day}`;
+      
       createTask({
         title: newTask,
         description: '',
         status: 'pending',
-        dueDate: new Date().toISOString().split('T')[0]
+        dueDate: today
       });
       setNewTask('');
     }

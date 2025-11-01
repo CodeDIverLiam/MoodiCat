@@ -41,10 +41,31 @@ export default function AIChatPanel() {
         
         console.log('AI Response:', response.data);
         
+        // 确保响应内容是字符串，处理可能的对象响应
+        let responseContent = response.data;
+        if (typeof responseContent !== 'string') {
+          // 如果是对象，尝试提取文本或转换为字符串
+          if (responseContent && typeof responseContent === 'object') {
+            // 如果是工具调用对象，提取有用信息或使用默认消息
+            if (responseContent.tool_name) {
+              responseContent = `I'm processing your request using ${responseContent.tool_name}...`;
+            } else {
+              // 尝试 JSON 序列化，或使用默认消息
+              try {
+                responseContent = JSON.stringify(responseContent);
+              } catch (e) {
+                responseContent = 'I processed your request. Please check if the action was completed successfully.';
+              }
+            }
+          } else {
+            responseContent = String(responseContent || 'Sorry, I couldn\'t process that request.');
+          }
+        }
+        
         const aiMessage = {
           id: messages.length + 2,
           type: 'ai',
-          content: response.data || 'Sorry, I couldn\'t process that request.',
+          content: responseContent,
           timestamp: new Date()
         };
         

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus } from 'lucide-react';
 import { useDiary } from '../hooks/useDiary';
 import DiaryList from '../components/lists/DiaryList';
@@ -7,18 +7,26 @@ import Loading from '../components/common/Loading';
 import ErrorState from '../components/common/ErrorState';
 import Empty from '../components/common/Empty';
 
+// Helper function to get local date string (YYYY-MM-DD) - not UTC
+const getLocalDateString = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export default function DiaryPage() {
   const [showForm, setShowForm] = useState(false);
   const [editingEntry, setEditingEntry] = useState(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   
-  // Set default date range (last 30 days)
-  useState(() => {
+  // Set default date range (last 30 days) using local timezone
+  useEffect(() => {
     const today = new Date();
     const thirtyDaysAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-    setEndDate(today.toISOString().split('T')[0]);
-    setStartDate(thirtyDaysAgo.toISOString().split('T')[0]);
+    setEndDate(getLocalDateString(today));
+    setStartDate(getLocalDateString(thirtyDaysAgo));
   }, []);
 
   const { 

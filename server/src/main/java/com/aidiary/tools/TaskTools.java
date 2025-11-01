@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.ai.tool.annotation.Tool;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 
@@ -25,11 +24,28 @@ public class TaskTools {
     @Tool(name = "create_task",
             description = "创建一个新的任务。参数JSON: {\"title\":\"任务标题(必填)\",\"description\":\"任务描述(可选)\",\"dueDate\":\"截止日期(YYYY-MM-DD格式,可选)\"}")
     public String create_task(String json) {
+        log.info("=== TOOL CALLED: create_task with json={} ===", json);
+        
+        // 处理 null 或空参数
+        if (json == null || json.trim().isEmpty()) {
+            log.error("create_task called with null or empty json parameter");
+            return "ERROR: 参数不能为空。请提供有效的 JSON 参数：{\"title\":\"任务标题(必填)\",\"description\":\"任务描述(可选)\",\"dueDate\":\"截止日期(YYYY-MM-DD格式,可选)\"}";
+        }
+        
         try {
             var node = mapper.readTree(json);
+            
+            // 检查必需的 title 字段
+            if (!node.hasNonNull("title") || node.get("title").asText().trim().isEmpty()) {
+                log.error("create_task called without required 'title' field");
+                return "ERROR: title 字段是必需的，不能为空";
+            }
+            
             var title = node.get("title").asText();
             var description = node.hasNonNull("description") ? node.get("description").asText() : null;
             var dueDateStr = node.hasNonNull("dueDate") ? node.get("dueDate").asText() : null;
+
+            log.info("Parsed task data: title={}, description={}, dueDate={}", title, description, dueDateStr);
 
             var task = new Task();
             // 从 SecurityContext 获取用户ID
@@ -39,6 +55,7 @@ public class TaskTools {
                 return "ERROR: User not authenticated";
             }
             
+            log.info("Creating task for user ID: {}", currentUserId);
             task.setUserId(currentUserId);
             task.setTitle(title);
             task.setDescription(description);
@@ -53,11 +70,12 @@ public class TaskTools {
                 }
             }
 
+            log.info("Calling taskService.createTask()...");
             taskService.createTask(task);
-            log.info("Task created via AI tool: id={}, title={}", task.getId(), title);
+            log.info("=== TASK CREATED SUCCESSFULLY: id={}, title={} ===", task.getId(), title);
             return "OK id=" + task.getId() + " title=" + title;
         } catch (Exception e) {
-            log.error("Error in createTask tool: {}", e.getMessage(), e);
+            log.error("=== ERROR in createTask tool: {} ===", e.getMessage(), e);
             return "ERROR: " + e.getMessage();
         }
     }

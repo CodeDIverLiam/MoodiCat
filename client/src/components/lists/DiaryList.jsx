@@ -49,12 +49,14 @@ export default function DiaryList({ entries, onUpdate, onDelete, isLoading }) {
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <h4 className="text-sm font-medium text-gray-800 truncate">{entry.title}</h4>
-              <span className={`px-2 py-1 text-xs rounded-full border ${getMoodColor(entry.mood)}`}>
-                {entry.mood}
-              </span>
+              <h4 className="text-sm font-medium text-gray-800 truncate">{entry.title || '(无标题)'}</h4>
+              {entry.mood && (
+                <span className={`px-2 py-1 text-xs rounded-full border ${getMoodColor(entry.mood)}`}>
+                  {entry.mood}
+                </span>
+              )}
             </div>
-            <p className="text-sm text-gray-600 line-clamp-2">{entry.content}</p>
+            <p className="text-sm text-gray-600 line-clamp-2">{entry.content || '(无内容)'}</p>
             <p className="text-xs text-gray-500 mt-1">
               {new Date(entry.entryDate).toLocaleTimeString()}
             </p>

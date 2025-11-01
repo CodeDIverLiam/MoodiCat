@@ -4,9 +4,13 @@ import { diaryApi } from '../api/diary';
 export const useDiary = (date = 'today') => {
   const queryClient = useQueryClient();
   
-  // Get today's date in YYYY-MM-DD format
+  // Get today's date in YYYY-MM-DD format (using local timezone, not UTC)
   const getTodayDate = () => {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
   // Determine the date range
