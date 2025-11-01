@@ -19,50 +19,42 @@
         <result property="timestamp" column="timestamp"/>
     </resultMap>
 
-    <!-- 创建会话 -->
     <insert id="createSession" parameterType="com.aidiary.model.ChatSession" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO chat_sessions (user_id, session_id, title, created_at, updated_at)
         VALUES (#{userId}, #{sessionId}, #{title}, #{createdAt}, #{updatedAt})
     </insert>
 
-    <!-- 获取用户的会话列表 -->
     <select id="getSessionsByUserId" parameterType="Long" resultMap="ChatSessionResultMap">
         SELECT * FROM chat_sessions 
         WHERE user_id = #{userId} 
         ORDER BY updated_at DESC
     </select>
 
-    <!-- 根据sessionId获取会话 -->
     <select id="getSessionBySessionId" parameterType="String" resultMap="ChatSessionResultMap">
         SELECT * FROM chat_sessions WHERE session_id = #{sessionId}
     </select>
 
-    <!-- 更新会话 -->
     <update id="updateSession" parameterType="com.aidiary.model.ChatSession">
         UPDATE chat_sessions 
         SET title = #{title}, updated_at = #{updatedAt}
         WHERE id = #{id}
     </update>
 
-    <!-- 删除会话 -->
     <delete id="deleteSession" parameterType="Long">
         DELETE FROM chat_sessions WHERE id = #{id}
     </delete>
 
-    <!-- 添加消息 -->
     <insert id="addMessage" parameterType="com.aidiary.model.ChatMessage" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO chat_messages (session_id, role, content, timestamp)
         VALUES (#{sessionId}, #{role}, #{content}, #{timestamp})
     </insert>
 
-    <!-- 获取会话的所有消息 -->
     <select id="getMessagesBySessionId" parameterType="Long" resultMap="ChatMessageResultMap">
         SELECT * FROM chat_messages 
         WHERE session_id = #{sessionId} 
         ORDER BY timestamp ASC
     </select>
 
-    <!-- 删除会话的所有消息 -->
     <delete id="deleteMessagesBySessionId" parameterType="Long">
         DELETE FROM chat_messages WHERE session_id = #{sessionId}
     </delete>

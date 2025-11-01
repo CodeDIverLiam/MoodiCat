@@ -13,18 +13,16 @@ export const useDiary = (date = 'today') => {
     return `${year}-${month}-${day}`;
   };
   
-  // Determine the date range
   const todayDate = getTodayDate();
   const startDate = date === 'today' || !date ? todayDate : date;
   const endDate = date === 'today' || !date ? todayDate : date;
 
-  // Get diary entries with auto-refresh to detect AI-created entries
   const { data: entries, isLoading, error } = useQuery({
     queryKey: ['diary', startDate, endDate],
     queryFn: () => diaryApi.getEntries(startDate, endDate),
     enabled: !!(startDate && endDate),
-    refetchInterval: 3000, // Auto-refresh every 3 seconds to detect new diary entries from AI
-    refetchIntervalInBackground: true // Continue refetching even when tab is not active
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true
   });
 
   // Create entry mutation

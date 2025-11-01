@@ -16,9 +16,6 @@ public class ChatSessionController {
     private final ChatSessionService chatSessionService;
     private final UserMapper userMapper;
 
-    /**
-     * 获取用户的所有会话
-     */
     @GetMapping
     public List<ChatSession> getUserSessions() {
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);
@@ -28,9 +25,6 @@ public class ChatSessionController {
         return chatSessionService.getUserSessions(currentUserId);
     }
 
-    /**
-     * 获取会话的消息历史
-     */
     @GetMapping("/{sessionId}/messages")
     public List<ChatMessage> getSessionMessages(@PathVariable String sessionId) {
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);
@@ -46,9 +40,6 @@ public class ChatSessionController {
         return chatSessionService.getSessionMessages(session.getId());
     }
 
-    /**
-     * 创建新会话
-     */
     @PostMapping
     public ChatSession createSession(@RequestParam(required = false) String title) {
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);
@@ -56,13 +47,10 @@ public class ChatSessionController {
             throw new IllegalStateException("User not authenticated");
         }
         
-        String sessionTitle = title != null ? title : "新对话";
+        String sessionTitle = title != null ? title : "New Chat";
         return chatSessionService.createSession(currentUserId, sessionTitle);
     }
 
-    /**
-     * 删除会话
-     */
     @DeleteMapping("/{sessionId}")
     public void deleteSession(@PathVariable String sessionId) {
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);

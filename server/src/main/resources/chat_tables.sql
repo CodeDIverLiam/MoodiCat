@@ -1,4 +1,3 @@
--- 创建聊天会话表
 CREATE TABLE IF NOT EXISTS chat_sessions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,
@@ -10,7 +9,6 @@ CREATE TABLE IF NOT EXISTS chat_sessions (
     INDEX idx_session_id (session_id)
 );
 
--- 创建聊天消息表
 CREATE TABLE IF NOT EXISTS chat_messages (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     session_id BIGINT NOT NULL,

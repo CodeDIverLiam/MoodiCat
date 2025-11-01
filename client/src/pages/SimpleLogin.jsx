@@ -11,7 +11,6 @@ export default function SimpleLogin({ onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    console.log('Submitting:', { username, password, isLogin });
 
     try {
       const url = `http://localhost:10000/api/v1/auth/${isLogin ? 'login' : 'register'}`;
@@ -41,8 +40,6 @@ export default function SimpleLogin({ onLoginSuccess }) {
         data = { message: 'Invalid response from server' };
       }
 
-      console.log('Response:', data);
-
       if (response.ok) {
         if (data.token) {
           localStorage.setItem('aiDiaryToken', data.token);
@@ -64,9 +61,8 @@ export default function SimpleLogin({ onLoginSuccess }) {
           // Automatically switch to login mode
           setTimeout(() => {
             setIsLogin(true);
-          }, 500);
+            }, 500);
         } else if (response.status === 401 && isLogin) {
-          // Login failed
           toast.error('Invalid username or password. Please try again.');
         } else if (response.status === 400) {
           // Bad request

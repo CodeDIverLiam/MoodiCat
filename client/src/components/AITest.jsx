@@ -15,14 +15,9 @@ export default function AITest() {
     setResponse('');
     
     try {
-      console.log('Testing AI API with message:', message);
-      console.log('Token:', localStorage.getItem('aiDiaryToken'));
-      
       const result = await api.post('/ai/chat', {
         message: message
       });
-      
-      console.log('AI Response:', result.data);
       setResponse(JSON.stringify(result.data, null, 2));
     } catch (err) {
       console.error('AI Test Error:', err);

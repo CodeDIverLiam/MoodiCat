@@ -2,10 +2,10 @@ package com.aidiary;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling; // 导入
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling // <-- 添加这个注解来开启定时任务功能
+@EnableScheduling
 public class AiDiaryApplication {
 
     public static void main(String[] args) {

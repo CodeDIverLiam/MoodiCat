@@ -7,14 +7,12 @@ import java.util.List;
 
 @Mapper
 public interface ChatSessionMapper {
-    // 会话管理
     void createSession(ChatSession session);
     List<ChatSession> getSessionsByUserId(Long userId);
     ChatSession getSessionBySessionId(String sessionId);
     void updateSession(ChatSession session);
     void deleteSession(Long sessionId);
     
-    // 消息管理
     void addMessage(ChatMessage message);
     List<ChatMessage> getMessagesBySessionId(Long sessionId);
     void deleteMessagesBySessionId(Long sessionId);

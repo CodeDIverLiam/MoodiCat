@@ -25,13 +25,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         try {
             if (token != null && jwtTokenProvider.validateToken(token)) {
                 Authentication auth = jwtTokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(auth); // 将认证信息设置到上下文中
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
-            // 如果没有token或token无效，继续处理请求（让Spring Security决定是否需要认证）
         } catch (Exception ex) {
-            // this is very important, since it guarantees the user is not authenticated at all
             SecurityContextHolder.clearContext();
-            // 只有在token存在但无效时才返回401，否则让Spring Security处理
             if (token != null) {
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, ex.getMessage());
                 return;

@@ -20,10 +20,8 @@ public class ChatController {
     private final DiaryTools tools;
     private final UserMapper userMapper;
     
-    /** 与模型聊天（模型可自动调用 append_diary 写库） */
     @PostMapping("/chat")
     public ResponseEntity<String> chat(@RequestBody String userMsg) {
-        // 检查用户认证
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);
         if (currentUserId == null) {
             log.warn("Unauthorized access attempt to chat endpoint");

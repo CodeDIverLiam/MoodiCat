@@ -5,9 +5,7 @@ export default function TestApp() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log('TestApp mounted');
     const token = localStorage.getItem('aiDiaryToken');
-    console.log('Token found:', !!token);
     setIsAuthenticated(!!token);
     setIsLoading(false);
   }, []);
@@ -26,7 +24,6 @@ export default function TestApp() {
       });
 
       const data = await response.json();
-      console.log('Login response:', data);
 
       if (response.ok && data.token) {
         localStorage.setItem('aiDiaryToken', data.token);

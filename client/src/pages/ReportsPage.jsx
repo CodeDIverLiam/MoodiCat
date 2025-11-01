@@ -44,7 +44,6 @@ export default function ReportsPage() {
 
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
 
-  // 2. 为解析后的心情数据添加 state
   const [moodData, setMoodData] = useState([]);
 
   const {
@@ -54,27 +53,23 @@ export default function ReportsPage() {
   } = useDailySummary(selectedDate);
 
   const {
-    trend, // 'trend' 现在是后端返回的 JSON 字符串
+    trend,
     isLoading: trendLoading,
     error: trendError
   } = useMoodTrend('last30days');
 
-  // 3. 使用 useEffect 在 'trend' 数据加载后解析它
   useEffect(() => {
     if (trend && !trendError) {
       try {
-        // 后端返回的是一个 JSON 字符串，我们需要解析它
         const parsedData = JSON.parse(trend);
         setMoodData(parsedData);
       } catch (e) {
         console.error("Failed to parse mood trend JSON:", e);
-        // 如果AI返回的不是标准JSON，在这里处理
         setMoodData([{ date: "Error", mood: "Failed to parse AI response" }]);
       }
     }
-  }, [trend, trendError]); // 当 trend 或 trendError 变化时触发
+  }, [trend, trendError]);
 
-  // 4. 更新 Loading 状态
   if (summaryLoading) {
     return (
         <div className="bg-white rounded-lg shadow p-6">
@@ -82,8 +77,6 @@ export default function ReportsPage() {
         </div>
     );
   }
-
-  // 5. 更新 Error 状态
   if (summaryError || trendError) {
     return (
         <div className="bg-white rounded-lg shadow p-6">

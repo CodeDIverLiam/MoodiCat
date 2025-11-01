@@ -1,8 +1,8 @@
 package com.aidiary.controller;
 
-import com.aidiary.mapper.UserMapper; // 导入
+import com.aidiary.mapper.UserMapper;
 import com.aidiary.model.DiaryEntry;
-import com.aidiary.security.SecurityUtils; // 导入
+import com.aidiary.security.SecurityUtils;
 import com.aidiary.service.DiaryEntryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DiaryEntryController {
     private final DiaryEntryService diaryEntryService;
-    private final UserMapper userMapper; // 注入
+    private final UserMapper userMapper;
 
     @GetMapping
     public List<DiaryEntry> getDiaryEntries(
@@ -38,7 +38,6 @@ public class DiaryEntryController {
         if (entry == null) {
             return ResponseEntity.notFound().build();
         }
-        // 授权检查
         if (!entry.getUserId().equals(currentUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -55,12 +54,11 @@ public class DiaryEntryController {
     @PutMapping("/{entryId}")
     public ResponseEntity<DiaryEntry> updateDiaryEntry(@PathVariable Long entryId, @RequestBody DiaryEntry entryDetails) {
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);
-        DiaryEntry existingEntry = diaryEntryService.findDiaryEntryById(entryId); // 先获取
+        DiaryEntry existingEntry = diaryEntryService.findDiaryEntryById(entryId);
 
         if (existingEntry == null) {
             return ResponseEntity.notFound().build();
         }
-        // 授权检查
         if (!existingEntry.getUserId().equals(currentUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -72,12 +70,11 @@ public class DiaryEntryController {
     @DeleteMapping("/{entryId}")
     public ResponseEntity<Void> deleteDiaryEntry(@PathVariable Long entryId) {
         Long currentUserId = SecurityUtils.getCurrentUserId(userMapper);
-        DiaryEntry existingEntry = diaryEntryService.findDiaryEntryById(entryId); // 先获取
+        DiaryEntry existingEntry = diaryEntryService.findDiaryEntryById(entryId);
 
         if (existingEntry == null) {
             return ResponseEntity.notFound().build();
         }
-        // 授权检查
         if (!existingEntry.getUserId().equals(currentUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }

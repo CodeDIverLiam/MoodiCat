@@ -4,12 +4,11 @@ import { tasksApi } from '../api/tasks';
 export const useTasks = (status) => {
   const queryClient = useQueryClient();
 
-  // Get tasks with auto-refresh to detect AI-created tasks
   const { data: tasks, isLoading, error } = useQuery({
     queryKey: ['tasks', status],
     queryFn: () => tasksApi.getTasks(status),
-    refetchInterval: 3000, // Auto-refresh every 3 seconds to detect new tasks from AI
-    refetchIntervalInBackground: true // Continue refetching even when tab is not active
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true
   });
 
   // Create task mutation

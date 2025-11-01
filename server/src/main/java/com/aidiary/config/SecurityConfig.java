@@ -29,20 +29,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 启用 CORS
-                .csrf(csrf -> csrf.disable()) // 禁用 CSRF，因为我们使用 Token
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 无状态 Session
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/auth/**").permitAll() // 允许访问登录和注册接口
-                        .requestMatchers("/tasks/**").authenticated() // 任务接口需要认证
-                        .requestMatchers("/ai/**").authenticated() // AI接口需要认证
-                        .requestMatchers("/chat-sessions/**").authenticated() // 聊天会话接口需要认证
-                        .requestMatchers("/diary-entries/**").authenticated() // 日记接口需要认证
-                        .requestMatchers("/reminders/**").authenticated() // 提醒接口需要认证
-                        .requestMatchers("/reports/**").authenticated() // 报告接口需要认证
-                        .anyRequest().authenticated() // 其他所有请求都需要认证
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/tasks/**").authenticated()
+                        .requestMatchers("/ai/**").authenticated()
+                        .requestMatchers("/chat-sessions/**").authenticated()
+                        .requestMatchers("/diary-entries/**").authenticated()
+                        .requestMatchers("/reminders/**").authenticated()
+                        .requestMatchers("/reports/**").authenticated()
+                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class); // 添加 JWT 过滤器
+                .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -50,7 +50,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 允许所有来源
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -62,7 +62,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); // 使用 BCrypt 加密密码
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

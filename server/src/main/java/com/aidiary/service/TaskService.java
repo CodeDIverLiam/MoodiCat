@@ -33,9 +33,8 @@ public class TaskService {
     public Task updateTask(Long id, Task taskDetails) {
         Task existingTask = taskMapper.findById(id);
         if (existingTask == null) {
-            return null; // Controller层会处理为404
+            return null;
         }
-        // 只更新允许修改的字段
         existingTask.setTitle(taskDetails.getTitle());
         existingTask.setDescription(taskDetails.getDescription());
         existingTask.setStatus(taskDetails.getStatus());

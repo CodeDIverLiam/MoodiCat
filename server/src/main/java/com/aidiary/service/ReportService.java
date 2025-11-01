@@ -85,18 +85,14 @@ public class ReportService {
         }
     }
 
-    /**
-     * [NEW] Gets a single-word or emoji summary of today's mood.
-     */
     public String getTodayMoodSummary(Long userId) {
         LocalDate today = LocalDate.now();
         List<DiaryEntry> entries = diaryEntryMapper.findByUserIdAndDateRange(userId, today, today);
 
         if (entries.isEmpty()) {
-            return "Tracked"; // Default if no entries
+            return "Tracked";
         }
 
-        // Count mood frequencies from user-provided mood fields
         Map<String, Long> moodCounts = entries.stream()
                 .filter(e -> e.getMood() != null && !e.getMood().trim().isEmpty())
                 .collect(Collectors.groupingBy(
@@ -105,14 +101,12 @@ public class ReportService {
                 ));
 
         if (!moodCounts.isEmpty()) {
-            // If all entries have the same mood, return it directly
             if (moodCounts.size() == 1) {
                 String dominantMood = moodCounts.keySet().iterator().next();
                 log.info("All entries have the same mood: {}", dominantMood);
                 return capitalizeFirst(dominantMood);
             }
 
-            // If multiple moods, find the most frequent one
             String mostFrequentMood = moodCounts.entrySet().stream()
                     .max(Map.Entry.comparingByValue())
                     .map(Map.Entry::getKey)
@@ -124,7 +118,6 @@ public class ReportService {
             }
         }
 
-        // If no clear majority, use AI to analyze based on user-provided mood fields
         String entriesData = entries.stream()
                 .map(e -> String.format("Mood: %s, Content: %s",
                         e.getMood() != null && !e.getMood().trim().isEmpty() ? e.getMood() : "not specified",
@@ -175,7 +168,6 @@ public class ReportService {
             return "Neutral";
         } catch (Exception e) {
             log.error("Failed to generate today's mood summary: {}", e.getMessage(), e);
-            // Fallback: return most frequent mood
             if (!moodCounts.isEmpty()) {
                 String fallback = moodCounts.entrySet().stream()
                         .max(Map.Entry.comparingByValue())
@@ -215,7 +207,6 @@ public class ReportService {
             return "[]";
         }
 
-        // Group entries by date and calculate dominant mood per day based on user-provided mood fields
         Map<LocalDate, List<DiaryEntry>> entriesByDate = entries.stream()
                 .collect(Collectors.groupingBy(DiaryEntry::getEntryDate));
 
@@ -225,7 +216,6 @@ public class ReportService {
             LocalDate date = dateEntry.getKey();
             List<DiaryEntry> dayEntries = dateEntry.getValue();
 
-            // Count mood frequencies from user-provided mood fields
             Map<String, Long> moodCounts = dayEntries.stream()
                     .filter(e -> e.getMood() != null && !e.getMood().trim().isEmpty())
                     .collect(Collectors.groupingBy(
@@ -235,13 +225,11 @@ public class ReportService {
 
             String dominantMood;
             if (!moodCounts.isEmpty()) {
-                // Get the most frequent mood
                 dominantMood = moodCounts.entrySet().stream()
                         .max(Map.Entry.comparingByValue())
                         .map(Map.Entry::getKey)
                         .orElse("neutral");
             } else {
-                // No mood labels provided, use AI to analyze content
                 String dayEntriesData = dayEntries.stream()
                         .map(e -> String.format("Content: %s", e.getContent() != null ? e.getContent() : ""))
                         .collect(Collectors.joining("\n"));
@@ -255,7 +243,6 @@ public class ReportService {
             moodTrendList.add(moodData);
         }
 
-        // Sort by date
         moodTrendList.sort((a, b) -> a.get("date").compareTo(b.get("date")));
 
         try {

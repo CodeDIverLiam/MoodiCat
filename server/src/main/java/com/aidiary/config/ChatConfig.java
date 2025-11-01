@@ -13,7 +13,6 @@ public class ChatConfig {
     @Bean
     public ChatClient chatClient(ChatModel chatModel, DiaryTools diaryTools, TaskTools taskTools) {
         return ChatClient.builder(chatModel)
-                // 移除 defaultTools，改为在使用时显式指定，避免与显式调用 .tools() 冲突
                 .defaultSystem("""
           你是一个中英文双语对话的日记和任务助手。根据用户的语言回答。
 

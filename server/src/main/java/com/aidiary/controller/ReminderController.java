@@ -1,8 +1,8 @@
 package com.aidiary.controller;
 
-import com.aidiary.mapper.UserMapper; // 导入
+import com.aidiary.mapper.UserMapper;
 import com.aidiary.model.Reminder;
-import com.aidiary.security.SecurityUtils; // 导入
+import com.aidiary.security.SecurityUtils;
 import com.aidiary.service.ReminderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReminderController {
     private final ReminderService reminderService;
-    private final UserMapper userMapper; // 注入 UserMapper 用于获取当前用户ID
+    private final UserMapper userMapper;
 
     @GetMapping
     public List<Reminder> getReminders() {
@@ -33,7 +33,6 @@ public class ReminderController {
             throw new IllegalStateException("User not authenticated");
         }
         reminder.setUserId(currentUserId);
-        // 注意：这里可能还需要校验 reminder.taskId 是否也属于当前用户，如果 task_id 不为空的话
         return reminderService.createReminder(reminder);
     }
 
@@ -44,12 +43,11 @@ public class ReminderController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Reminder existingReminder = reminderService.findById(reminderId); // 先获取提醒信息
+        Reminder existingReminder = reminderService.findById(reminderId);
         if (existingReminder == null) {
             return ResponseEntity.notFound().build();
         }
 
-        // 授权检查：确认这个提醒属于当前登录用户
         if (!existingReminder.getUserId().equals(currentUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -57,7 +55,6 @@ public class ReminderController {
         if (reminderService.deleteReminder(reminderId)) {
             return ResponseEntity.noContent().build();
         }
-        // 一般不会到这里，因为上面已经检查过存在性
         return ResponseEntity.notFound().build();
     }
 }

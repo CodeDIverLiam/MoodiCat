@@ -4,14 +4,13 @@ spring:
 
   ai:
     dashscope:
-      api-key: ${DASHSCOPE_API_KEY} # 从环境变量注入
+      api-key: ${DASHSCOPE_API_KEY}
       chat:
         options:
           model: qwen-plus
           temperature: ${AI_TEMPERATURE:0.7}
 
   datasource:
-    # 示例：jdbc:postgresql://localhost:5432/aidb
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
