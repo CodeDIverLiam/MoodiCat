@@ -35,16 +35,83 @@ public class ReportService {
         List<DiaryEntry> entries = diaryEntryMapper.findByUserIdAndDateRange(userId, date, date);
 
         String aiSuggestion = generateAiSummary(tasks, entries);
+        String moodAnalysis = generateMoodAnalysis(entries);
 
         DailySummaryResponse response = new DailySummaryResponse();
         response.setDate(date);
         response.setTasksCompleted(completedCount);
         response.setTasksPending(pendingCount);
         response.setAiSuggestion(aiSuggestion);
+        response.setMoodAnalysis(moodAnalysis);
         response.setTasks(tasks);
         response.setEntries(entries);
 
         return response;
+    }
+
+    public String generateMoodAnalysis(List<DiaryEntry> entries) {
+        if (entries.isEmpty()) {
+            return "No diary entries found for mood analysis.";
+        }
+
+        String entriesData = entries.stream()
+                .map(e -> {
+                    String mood = (e.getMood() != null && !e.getMood().trim().isEmpty()) 
+                            ? e.getMood() : "not specified";
+                    String content = (e.getContent() != null) 
+                            ? e.getContent().substring(0, Math.min(e.getContent().length(), 200)) 
+                            : "";
+                    return String.format("- Mood: %s, Content: %s", mood, content);
+                })
+                .collect(Collectors.joining("\n"));
+
+        String systemPrompt = """
+            You are a mood analysis assistant. Analyze the user's diary entries and provide a brief mood analysis (2-3 sentences).
+            Focus on identifying the overall emotional state, patterns, and any notable mood changes throughout the day.
+            IMPORTANT: You must respond ONLY in English. Do not use any other language, emojis, or special characters.
+            Be empathetic and insightful. Provide a helpful analysis that helps the user understand their emotional patterns.
+            """;
+
+        String userPrompt = String.format(
+                "Today's diary entries:\n%s\n\nPlease provide a mood analysis based on these entries in English only.",
+                entriesData
+        );
+
+        try {
+            ChatClient localChatClient = ChatClient.builder(chatModel).build();
+            var response = localChatClient.prompt()
+                    .system(systemPrompt)
+                    .user(userPrompt)
+                    .call();
+
+            if (response != null) {
+                String analysis = response.content();
+                if (analysis != null && !analysis.trim().isEmpty()) {
+                    String cleaned = analysis.trim();
+                    log.debug("Generated mood analysis: {}", cleaned);
+                    return cleaned;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to generate mood analysis: {}", e.getMessage(), e);
+        }
+
+        Map<String, Long> moodCounts = entries.stream()
+                .filter(e -> e.getMood() != null && !e.getMood().trim().isEmpty())
+                .collect(Collectors.groupingBy(
+                        e -> e.getMood().trim().toLowerCase(),
+                        Collectors.counting()
+                ));
+
+        if (!moodCounts.isEmpty()) {
+            String dominantMood = moodCounts.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse("neutral");
+            return String.format("Based on your mood labels, you felt mostly %s today.", capitalizeFirst(dominantMood));
+        }
+
+        return "No specific mood information available for analysis.";
     }
 
     private String generateAiSummary(List<Task> tasks, List<DiaryEntry> entries) {
@@ -63,11 +130,12 @@ public class ReportService {
         String systemPrompt = """
             You are an empathetic and insightful assistant. Based on the user's task list and diary entries for today, provide a brief (1-2 sentence) summary and suggestion.
             Focus on their mood, task completion, and provide positive feedback or gentle reminders.
-            Return only the summary text, do not say "Hello" or "Of course".
+            IMPORTANT: You must respond ONLY in English. Do not use any other language.
+            Return only the summary text in English, do not say "Hello" or "Of course".
             """;
 
         String userPrompt = String.format(
-                "Here is my summary for today:\n\n[Tasks]\n%s\n\n[Diary]\n%s\n\nPlease give me a short summary and suggestion.",
+                "Here is my summary for today:\n\n[Tasks]\n%s\n\n[Diary]\n%s\n\nPlease give me a short summary and suggestion in English only.",
                 tasks.isEmpty() ? "No tasks" : tasksData,
                 entries.isEmpty() ? "No diary" : entriesData
         );
@@ -155,7 +223,6 @@ public class ReportService {
                 }
             }
 
-            // Fallback: return most frequent mood from counts
             if (!moodCounts.isEmpty()) {
                 String fallback = moodCounts.entrySet().stream()
                         .max(Map.Entry.comparingByValue())
@@ -230,11 +297,21 @@ public class ReportService {
                         .map(Map.Entry::getKey)
                         .orElse("neutral");
             } else {
-                String dayEntriesData = dayEntries.stream()
-                        .map(e -> String.format("Content: %s", e.getContent() != null ? e.getContent() : ""))
-                        .collect(Collectors.joining("\n"));
+                try {
+                    String dayEntriesData = dayEntries.stream()
+                            .map(e -> String.format("Content: %s", e.getContent() != null ? e.getContent() : ""))
+                            .collect(Collectors.joining("\n"));
 
-                dominantMood = analyzeMoodWithAI(dayEntriesData);
+                    if (dayEntriesData != null && !dayEntriesData.trim().isEmpty()) {
+                        dominantMood = analyzeMoodWithAI(dayEntriesData);
+                    } else {
+                        log.debug("No content available for mood analysis, using neutral");
+                        dominantMood = "neutral";
+                    }
+                } catch (Exception e) {
+                    log.error("Error analyzing mood for date {}: {}", date, e.getMessage(), e);
+                    dominantMood = "neutral";
+                }
             }
 
             Map<String, String> moodData = new HashMap<>();
@@ -257,6 +334,11 @@ public class ReportService {
     }
 
     private String analyzeMoodWithAI(String entriesData) {
+        if (entriesData == null || entriesData.trim().isEmpty()) {
+            log.debug("Empty entries data provided for mood analysis");
+            return "neutral";
+        }
+
         String systemPrompt = """
             Analyze the diary content and determine the mood.
             Respond with ONLY a single English word (all lowercase) representing the mood.
@@ -268,20 +350,30 @@ public class ReportService {
 
         try {
             ChatClient localChatClient = ChatClient.builder(chatModel).build();
-            String mood = localChatClient.prompt()
+            var response = localChatClient.prompt()
                     .system(systemPrompt)
                     .user(userPrompt)
-                    .call()
-                    .content();
+                    .call();
 
-            if (mood != null) {
+            if (response == null) {
+                log.warn("AI response is null for mood analysis");
+                return "neutral";
+            }
+
+            String mood = response.content();
+            if (mood != null && !mood.trim().isEmpty()) {
                 String cleaned = mood.replaceAll("[^\\p{L}\\p{M}\\p{N}\\p{P}\\p{S}]", "").trim().toLowerCase();
                 if (!cleaned.isEmpty()) {
+                    log.debug("AI analyzed mood as: {}", cleaned);
                     return cleaned;
+                } else {
+                    log.warn("AI mood response cleaned to empty string, original: {}", mood);
                 }
+            } else {
+                log.warn("AI mood response is null or empty");
             }
         } catch (Exception e) {
-            log.warn("Failed to analyze mood with AI: {}", e.getMessage());
+            log.error("Failed to analyze mood with AI: {}", e.getMessage(), e);
         }
 
         return "neutral";

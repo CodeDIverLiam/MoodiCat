@@ -1,31 +1,7 @@
 import { Edit3, Trash2 } from 'lucide-react';
+import { getMoodEmoji, getMoodColor } from '../../utils/moodEmoji';
 
 export default function DiaryList({ entries, onUpdate, onDelete, isLoading }) {
-  const getMoodEmoji = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return '😊';
-      case 'sad':
-        return '😢';
-      case 'neutral':
-        return '😐';
-      default:
-        return '😐';
-    }
-  };
-
-  const getMoodColor = (mood) => {
-    switch (mood) {
-      case 'happy':
-        return 'bg-green-100 text-green-800';
-      case 'sad':
-        return 'bg-red-100 text-red-800';
-      case 'neutral':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
 
   if (!entries || entries.length === 0) {
     return (

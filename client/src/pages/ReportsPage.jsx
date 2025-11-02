@@ -1,39 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useDailySummary, useMoodTrend } from '../hooks/useReports';
+import { useState } from 'react';
+import { useDailySummary } from '../hooks/useReports';
 import Loading from '../components/common/Loading';
 import ErrorState from '../components/common/ErrorState';
 import { CheckCircle, Circle } from 'lucide-react';
-
-function MoodChart({ data }) {
-  if (!data || data.length === 0) {
-    return (
-        <div className="text-center py-8 text-gray-500">
-          <div className="text-4xl mb-4">📊</div>
-          <p>No mood data found for this period.</p>
-          <p className="text-sm text-gray-400 mt-2">
-            Write some diary entries, and the AI will analyze your mood trend here!
-          </p>
-        </div>
-    );
-  }
-
-  return (
-      <div className="space-y-2">
-        <h4 className="text-sm font-semibold text-gray-700">AI Mood Analysis Results:</h4>
-        <div className="p-4 bg-gray-50 rounded-lg max-h-60 overflow-y-auto">
-          <pre className="text-xs text-gray-600">
-            {JSON.stringify(data, null, 2)}
-          </pre>
-        </div>
-        <p className="text-xs text-gray-500 mt-2">
-          (Note: A charting library like 'Recharts' or 'Chart.js' can be installed to visualize this data as a chart.)
-        </p>
-      </div>
-  );
-}
+import { getMoodEmoji, getMoodColor } from '../utils/moodEmoji';
 
 export default function ReportsPage() {
-  // Get today's date in local timezone (YYYY-MM-DD format)
   const getTodayDateString = () => {
     const now = new Date();
     const year = now.getFullYear();
@@ -44,31 +16,11 @@ export default function ReportsPage() {
 
   const [selectedDate, setSelectedDate] = useState(getTodayDateString());
 
-  const [moodData, setMoodData] = useState([]);
-
   const {
     summary,
     isLoading: summaryLoading,
     error: summaryError
   } = useDailySummary(selectedDate);
-
-  const {
-    trend,
-    isLoading: trendLoading,
-    error: trendError
-  } = useMoodTrend('last30days');
-
-  useEffect(() => {
-    if (trend && !trendError) {
-      try {
-        const parsedData = JSON.parse(trend);
-        setMoodData(parsedData);
-      } catch (e) {
-        console.error("Failed to parse mood trend JSON:", e);
-        setMoodData([{ date: "Error", mood: "Failed to parse AI response" }]);
-      }
-    }
-  }, [trend, trendError]);
 
   if (summaryLoading) {
     return (
@@ -77,29 +29,13 @@ export default function ReportsPage() {
         </div>
     );
   }
-  if (summaryError || trendError) {
+  if (summaryError) {
     return (
         <div className="bg-white rounded-lg shadow p-6">
-          <ErrorState error={summaryError || trendError} onRetry={() => window.location.reload()} />
+          <ErrorState error={summaryError} onRetry={() => window.location.reload()} />
         </div>
     );
   }
-
-  const getMoodEmoji = (mood) => {
-    if (!mood) return '😐';
-    const moodLower = mood.toLowerCase();
-    if (moodLower.includes('happy') || moodLower.includes('joy')) return '😊';
-    if (moodLower.includes('sad') || moodLower.includes('down')) return '😢';
-    return '😐';
-  };
-
-  const getMoodColor = (mood) => {
-    if (!mood) return 'bg-gray-100 text-gray-800';
-    const moodLower = mood.toLowerCase();
-    if (moodLower.includes('happy') || moodLower.includes('joy')) return 'bg-green-100 text-green-800';
-    if (moodLower.includes('sad') || moodLower.includes('down')) return 'bg-red-100 text-red-800';
-    return 'bg-gray-100 text-gray-800';
-  };
 
   return (
       <div className="space-y-6">
@@ -146,6 +82,14 @@ export default function ReportsPage() {
                     </div>
                   </div>
                 </div>
+                {summary.moodAnalysis && (
+                  <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
+                    <div className="text-sm text-purple-900">
+                      <div className="font-semibold mb-2">Mood Analysis:</div>
+                      <div className="text-purple-800 leading-relaxed">{summary.moodAnalysis}</div>
+                    </div>
+                  </div>
+                )}
               </div>
           ) : (
               <div className="text-center py-8 text-gray-500">
@@ -250,16 +194,6 @@ export default function ReportsPage() {
                 <div className="text-4xl mb-2">📝</div>
                 <p>No tasks for this date</p>
               </div>
-          )}
-        </div>
-
-        {/* Mood Trend */}
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-4">Mood Trend (Last 30 Days)</h3>
-          {trendLoading ? (
-              <Loading />
-          ) : (
-              <MoodChart data={moodData} />
           )}
         </div>
       </div>

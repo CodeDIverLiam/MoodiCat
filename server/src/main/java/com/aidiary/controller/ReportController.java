@@ -6,7 +6,7 @@ import com.aidiary.security.SecurityUtils;
 import com.aidiary.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.ResponseEntity; // Import ResponseEntity
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 

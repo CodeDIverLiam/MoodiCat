@@ -12,6 +12,7 @@ public class DailySummaryResponse {
     private long tasksCompleted;
     private long tasksPending;
     private String aiSuggestion;
+    private String moodAnalysis;
     private List<Task> tasks;
     private List<DiaryEntry> entries;
 }

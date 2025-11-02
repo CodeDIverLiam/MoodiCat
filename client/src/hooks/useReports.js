@@ -15,20 +15,7 @@ export const useDailySummary = (date) => {
   };
 };
 
-export const useMoodTrend = (period = 'last30days') => {
-  const { data: trend, isLoading, error } = useQuery({
-    queryKey: ['reports', 'mood-trend', period],
-    queryFn: () => reportsApi.getMoodTrend(period)
-  });
-
-  return {
-    trend,
-    isLoading,
-    error
-  };
-};
-
-// [NEW] Hook for the today's mood panel
+// Hook for the today's mood panel
 export const useTodayMoodSummary = () => {
   const { data: mood, isLoading, error, refetch } = useQuery({
     queryKey: ['reports', 'today-mood-summary'],
